@@ -1,0 +1,163 @@
+<%- include("partials/header.ejs") %>
+
+<main class="main profile-main my-posts-main">
+  <div class="profile-container">
+    <div class="post-container">
+      <div class="btn-cont">
+        <div class="heading-select-container">
+          <span class="heading">My Posts</span>
+          <select name="status" id="status">
+            <option value="all">All</option>
+            <option value="draft">Drafts</option>
+            <option value="published">Published</option>
+          </select>
+      </div>
+      <a href="/home/create-post" class="create-post">
+        <i class="bi bi-plus"></i>
+        Create Post
+      </a>
+      </div>
+      <div class="post-cont">
+        <% if (locals.posts) { %>
+          <% if (posts.length > 0) { %>
+            <% posts.forEach(post => { %>
+              <div class="post" data-status="<%= post.published ? 'published' : 'draft' %>" style="<% if (post.published === true) { %>
+                order: 1;
+              <% } %>">
+                <div class="post-owner">
+                  <% if (post.published) { %>
+                    <p class="published-by">
+                      Published by: <%= post.user_id === profile.id ? 'You' : post.username %>
+                    </p>
+                    <p class="published-on" data-createdat="<%= post.createdat %>">
+                      Published on: <span class="formatted-date">Loading...</span>
+                    </p>
+                    <% } else { %>
+                      <p class="published-by">Draft created by: <%= post.user_id === profile.id ? 'You' : post.username %></p>
+                    <% } %>
+                </div>
+                <div class="post-details">
+                <h3 class="heading"><%= post.title %></h3>
+                <p class="description"><%= post.description %></p>
+                <div class="tag-cont">
+                  <span class="p">Tags:</span>
+                  <% post.tags.forEach(tag => { %>
+                  <span class="tag"><%= tag %></span>
+                <% }) %></div>
+                <div class="dropdown-cont display">
+                  <div class="postId" style="display: none;"><%= post.id %></div>
+                  <a class="delete-btn" href="/home/post-delete/<%= post.id %>">Delete Post</a>
+                </div>
+                <i class="bi bi-three-dots-vertical"></i>
+                <div class="view-edit-cont">
+                <a href="/home/post/<%= post.id %>">
+                  View post
+                </a>
+                <a href="/home/create-post?edit=true&id=<%= post.id %>">
+                  Edit post
+                </a>
+                <% if (post.published === false) { %>
+                  <a href="/home/publish-post/<%= post.id %>">Publish</a>
+                <% } %>
+                </div>
+                </div>
+                <% if (post.published) { %>
+                  <div class="like-comment-cont">
+                    <div class="like-cont">
+                      <i class="bi bi-hand-thumbs-up"><% if (post.likes.length > 0) { %>
+                        <%= post.likes.length %>
+                      <% } %></i>
+                    </div>
+                    <div class="comment-cont">
+                      <i class="bi bi-chat-text"><% if (post.comments.length > 0) { %>
+                        <%= post.comments.length %>
+                      <% } %></i>
+                    </div>
+                  </div>
+                <% } %>
+              </div>
+              <p id="no-posts" class="heading" style="display: none;">No Posts Found</p>
+            <% }); %>
+          <% } else { %>
+            <p class="heading">No Posts Found</p>
+          <% } %>
+        <% } %>
+      </div>
+    </div>
+  </div>
+  <div class="modal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Delete Post</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>This post will be deleted permanently</p>
+        <p>Do you want to continue?</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <a type="button" class="btn btn-primary">Delete</a>
+      </div>
+    </div>
+  </div>
+</div>
+</main>
+
+<script>
+  const posts = document.querySelectorAll(".bi-three-dots-vertical");
+
+  posts.forEach(post => {
+    post.addEventListener("click", () => {
+      const dropdown = post.previousElementSibling;
+      document.querySelectorAll(".dropdown-cont").forEach(d => {
+        if (d !== dropdown) d.classList.add("display");
+      });
+      dropdown.classList.toggle("display");
+    });
+  });
+  const statusFilter = document.getElementById('status');
+const allPosts = document.querySelectorAll('.post');
+const noPostsMsg = document.getElementById('no-posts');
+
+statusFilter.addEventListener('change', () => {
+  const selected = statusFilter.value;
+  let visibleCount = 0;
+
+  allPosts.forEach(post => {
+    const status = post.getAttribute('data-status');
+    const shouldShow = selected === 'all' || status === selected;
+
+    post.style.display = shouldShow ? 'block' : 'none';
+    if (shouldShow) visibleCount++;
+  });
+  noPostsMsg.style.display = visibleCount === 0 ? 'block' : 'none';
+});
+window.addEventListener('DOMContentLoaded', () => {
+  statusFilter.dispatchEvent(new Event('change'));
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+  document.querySelectorAll(".published-on").forEach(el => {
+    const rawMillis = el.dataset.createdat;
+    const millis = parseInt(rawMillis, 10);
+    const date = new Date(millis);
+
+    const formatted = isNaN(date)
+      ? "Invalid Date"
+      : date.toLocaleString('en-US', {
+          year: 'numeric', month: 'short', day: 'numeric'
+        });
+
+    el.querySelector(".formatted-date").textContent = formatted;
+  });
+  const deleteBtn = document.querySelector(".delete-btn");
+  deleteBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+    const id = document.querySelector(".postId").textContent;
+  });
+});
+</script>
+
+<%- include("partials/footer.ejs") %>

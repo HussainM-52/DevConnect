@@ -1,0 +1,61 @@
+<%- include("partials/header.ejs") %>
+
+<main class="main email-main">
+  <% if (locals.message) { %>
+    <p class="code-send-message">
+      <%= message %>
+      <i class="bi bi-x-lg code-sent-message-cancel"></i>
+    </p>
+  <% } %>
+  <form class="verification-form" action="/login-email-verification" method="POST" id="verify-form">
+    <p class="verification">Email Verification</p>
+    <div class="code-inputs" id="code-inputs">
+      <input type="text" maxlength="1" class="code-input" autocomplete="off"/>
+      <input type="text" maxlength="1" class="code-input" autocomplete="off"/>
+      <input type="text" maxlength="1" class="code-input" autocomplete="off"/>
+      <input type="text" maxlength="1" class="code-input" autocomplete="off"/>
+    </div>
+    <button class="verification-btn" type="button" id="submit-btn">Submit Code</button>
+  </form>
+</main>
+
+<script>
+  const inputs = document.querySelectorAll('.code-input');
+
+  inputs.forEach((input, i) => {
+    input.addEventListener('input', () => {
+      if (input.value.length === 1 && i < inputs.length - 1) {
+        inputs[i + 1].focus();
+      }
+    });
+
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Backspace' && input.value === '' && i > 0) {
+        inputs[i - 1].focus();
+      }
+    });
+  });
+
+  console.log("script loaded");
+
+  document.getElementById("submit-btn").addEventListener("click", () => {
+    const code = Array.from(inputs).map(input => input.value).join('');
+    if (code.length < 4) {
+      alert("Please enter all 4 digits");
+      return;
+    }
+
+    const form = document.getElementById("verify-form");
+    const hiddenInput = document.createElement("input");
+    hiddenInput.type = "hidden";
+    hiddenInput.name = "code";
+    hiddenInput.value = code;
+    form.appendChild(hiddenInput);
+    form.submit();
+  });
+  document.querySelector(".code-sent-message-cancel").addEventListener("click", () => {
+    document.querySelector(".code-send-message").style.display = 'none';
+  });
+</script>
+
+<%- include("partials/footer.ejs") %>

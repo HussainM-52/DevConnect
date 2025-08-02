@@ -1,0 +1,121 @@
+<%- include("partials/header.ejs") %>
+
+<main class="main create-profile-main">
+  <div class="container">
+  <form id="imageUploadForm" enctype="multipart/form-data">
+    <label class="profileImageInputLabel" for="profileImageInput">
+      <i class="bi bi-camera"></i>
+    </label>
+    <input type="file" name="profileImage" id="profileImageInput" autocomplete="off" required />
+</form>
+<div class="img-cont">
+<img id="imagePreview" src=<%= locals.profile ? profile.pfp : '../assets/default.png' %> />
+</div>
+<form class="create-profile-form" action=
+"<% if (locals.edit === true) { %>
+  /edit-profile
+<% } else { %>
+  /create-profile
+<% } %>"
+method="POST">
+  <div class="cont">
+  <label for="name" style="display: <%= locals.profile && 'none' %>;">Full name</label>
+  <input type="text" name="name" id="name" required autocomplete="off" value="<%= locals.profile && profile.name %>"/>
+  </div>
+  <div class="cont">
+  <label for="usernameInput" style="display: <%= locals.profile && 'none' %>;">Username</label>
+  <input type="text" id="usernameInput" name="username" autocomplete="off" required value="<%= locals.profile && profile.username %>" />
+  </div>
+  <div class="cont">
+  <label for="bio" style="display: <%= locals.profile && 'none' %>;">About you</label>
+  <textarea class="auto-resize" name="bio" id="bio" autocomplete="off"><%= locals.profile && profile.bio %></textarea>
+  </div>
+  <input type="hidden" name="imagePath" id="imagePathInput" value="<%= locals.profile ? profile.pfp : '../assets/default.png' %>" autocomplete="off" />
+  <% if (locals.profile) { %>
+    <input style="display: none;" type="text" name="id" value="<%= profile.id %>">
+  <% } %>
+  <div class="btn-cont">
+  <% if (locals.profile) { %>
+    <a href="/edit-profile-cancel" class="edit-profile-cancel">Cancel</a>
+  <% } %>
+  <button type="submit">
+    <%= locals.profile ? 'Update Profile' : 'Create Profile' %>
+  </button>
+  </div>
+</form>
+</div>
+
+<script>
+  const textarea = document.querySelector(".auto-resize");
+
+textarea.addEventListener("input", () => {
+  textarea.style.height = "auto";
+  textarea.style.height = textarea.scrollHeight + "px"; 
+});
+
+  document.getElementById('usernameInput').addEventListener('input', function() {
+    this.value = this.value.replace(/\s/g, '');
+  });
+  const input = document.getElementById('profileImageInput');
+
+  input.addEventListener('change', async () => {
+    const formData = new FormData();
+    const file = input.files[0];
+    if (!file) return;
+
+    formData.append('profileImage', file);
+
+    const response = await fetch('/upload-image', {
+      method: 'POST',
+      body: formData,
+    });
+
+    const data = await response.json();
+    if (data.success) {
+      const imagePreview = document.getElementById('imagePreview');
+      imagePreview.src = data.imagePath;
+      imagePreview.style.display = 'block';
+      document.getElementById('imagePathInput').value = data.imagePath;
+    } else {
+      alert("Image upload failed");
+    }
+  });
+  const someInputs = document.querySelectorAll("input");
+  const inputs = [...someInputs, textarea]
+  console.log(inputs);
+
+  inputs.forEach(input => {
+    input.addEventListener("focusin", () => {
+    input.style.border = '1px solid #2563EB';
+
+    const label = document.querySelector(`label[for="${input.id}"]`);
+    if (label) {
+      label.style.transform = 'translate(7px, -10px)';
+      label.style.display = 'block';
+      label.style.color = '#1E3A8A';
+      label.style.fontSize = '13px';
+      label.style.backgroundColor = 'whitesmoke';
+    }
+  });
+
+  input.addEventListener("focusout", () => {
+    input.style.border = '1px solid rgb(58, 58, 58)';
+
+    const label = document.querySelector(`label[for="${input.id}"]`);
+    if (label) {
+      label.style.transform = 'translate(7px, 3px)';
+      label.style.color = 'rgb(124, 124, 124)';
+      if (input.value) {
+        label.style.display = 'none';
+      } else {
+        label.style.display = 'block';
+      }
+      label.style.fontSize = '15px';
+      label.style.backgroundColor = 'whitesmoke';
+    }
+  });
+});
+</script>
+</main>
+
+<%- include("partials/footer.ejs") %>

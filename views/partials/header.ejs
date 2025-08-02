@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <head>
+  <script>
+    if (localStorage.getItem('theme') === 'dark') {
+      document.documentElement.classList.add('dark');
+    }
+  </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+<link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet" />
+</head>
+<body>
+  <header>
+    <nav class="header-navbar">
+      <div class="header-text-container">
+        <a href="/"><h1 class="header-text-container-heading"><span>D</span>ev<span>C</span>onnect</h1></a>
+      </div>
+      <% if (locals.isAuthenticated === true) { %>
+        <div class="header-link-container">
+        <div class="links">
+          <a href="/home" class="header-link">Home</a>
+          <a href="/home/my-posts" class="header-link">My Blogs</a>
+          <a href="/home/create-post" class="header-link create-post-link"><i class="bi bi-plus-lg"></i></a>
+          <a href="/home/profile" class="header-link">Profile</a>
+          <a href="/home/my-posts/stats" class="header-link">Stats</a>
+        </div>
+      </div>
+      <% } else { %>
+        <div class="header-link-container">
+        <div class="links">
+          <a href="/#about" class="header-link">About</a>
+          <a href="/#features" class="header-link">Features</a>
+          <a href="/#contact" class="header-link">Contact</a>
+        </div>
+      </div>
+      <% } %>
+      <div class="header-btn-container">
+        <% if (locals.profile) { %>
+          <div class="header-profile-container">
+        <img src="<%= profile.pfp %>" class="header-image">
+          <p class="header-username"><%= profile.username %></p>
+          </div>
+          <div class="dropdown display">
+            <a href="/home/profile" class="profile">
+              <div class="icon-text">
+              <i class="bi bi-person-circle"></i>
+              View profile
+              </div>
+              <i class="bi bi-caret-right-fill"></i>
+            </a>
+
+            <a href="/logout" class="logout">
+              <div class="icon-text">
+                <i class="bi bi-box-arrow-right"></i>
+              Logout
+              </div>
+            </a>
+          </div>
+        <% } else { %>
+          <a href="/signup">
+        <button class="header-btn header-btn-signup">
+          Sign Up
+        </button>
+      </a>
+        <a href="/login">
+        <button class="header-btn header-btn-login">
+          Login
+        </button>
+      </a>
+        <% } %>
+        <button id="themeToggle" class="mode-btn">
+  <i id="themeIcon" class="bi bi-moon-stars"></i>
+</button>
+
+      </div>
+    </nav>
+  </header>

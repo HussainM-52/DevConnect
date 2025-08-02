@@ -1,0 +1,14 @@
+<%- include("partials/header.ejs") %>
+
+<main class="main blog-view-main">
+  <div class="container">
+    <% if (post.published === true) { %>
+      <a href="/home/post/<%= post.id %>/download"><i class="bi bi-download"></i></a>
+    <% } %>
+    <div class="ql-editor">
+      <%- post.content %>
+    </div>
+  </div>
+</main>
+
+<%- include("partials/footer.ejs") %>

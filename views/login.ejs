@@ -1,0 +1,87 @@
+<%- include("partials/header.ejs") %>
+
+<main class="main login-main">
+  <% if (locals.message) { %>
+    <p class="login-error-message">
+      <%= message %>
+      <i class="bi bi-x-lg login-error-message-cancel"></i>
+    </p>
+    <% } %>
+  <div class="login-container">
+    <p class="heading">Login</p>
+  <form action="/login" id="loginForm" method="POST">
+    <div class="container">
+    <label id="email-label" for="email">Email</label>
+    <input type="email" id="email" name="username" autocomplete="off" required>
+    </div>
+    <div class="container">
+    <label id="password-label" for="password">Password</label>
+    <input type="password" id="password" name="password" autocomplete="off" required>
+    </div>
+    <input type="checkbox" id="checkbox">
+    <button type="submit" id="submitBtn">Login</button>
+  </form>
+  <a href="/email" class="forgot-password">Forgot Password?</a>
+  <div class="or-container">
+    <div class="line"></div>
+    <p class="line-text">OR</p>
+    <div class="line"></div>
+  </div>
+  <a class="google-login" href="/auth/google">
+    <img src="../assets/google-removebg-preview.png" alt="Google">
+    Login with Google</a>
+  <p class="signup-banner">Don't have an account? <a href="/signup">Sign Up</a></p>
+  </div>
+</main>
+<script>
+  // if (document.getElementById(checkbox).checked) {
+  //   document.getElementById("email").value = 'hussainmustansir26@gmail.com';
+  //   document.getElementById("password").value = 'Dmsmmhn_5253'
+  // }
+  // else {
+  //   document.getElementById("email").value = '';
+  //   document.getElementById("password").value = '';
+  // }
+  document.getElementById("checkbox").addEventListener("change", () => {
+    document.getElementById("email").value = 'hussainmustansir26@gmail.com';
+    document.getElementById("password").value = 'Dmsmmhn_5253'
+  })
+  const inputs = document.querySelectorAll("input");
+
+  inputs.forEach(input => {
+    input.addEventListener("focusin", () => {
+    input.style.border = '1px solid #2563EB';
+
+    const label = document.querySelector(`label[for="${input.id}"]`);
+    if (label) {
+      label.style.transform = 'translate(7px, -10px)';
+      label.style.display = 'block';
+      label.style.color = '#1E3A8A';
+      label.style.fontSize = '13px';
+      label.style.backgroundColor = 'whitesmoke';
+    }
+  });
+
+  input.addEventListener("focusout", () => {
+    input.style.border = '1px solid rgb(58, 58, 58)';
+
+    const label = document.querySelector(`label[for="${input.id}"]`);
+    if (label) {
+      label.style.transform = 'translate(7px, 3px)';
+      label.style.color = 'rgb(124, 124, 124)';
+      if (input.value) {
+        label.style.display = 'none';
+      } else {
+        label.style.display = 'block';
+      }
+      label.style.fontSize = '15px';
+      label.style.backgroundColor = 'whitesmoke';
+    }
+  });
+});
+  document.querySelector(".login-error-message-cancel").addEventListener("click", () => {
+    document.querySelector(".login-error-message").style.display = 'none';
+  });
+</script>
+
+<%- include("partials/footer.ejs") %>

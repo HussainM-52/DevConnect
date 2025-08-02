@@ -1,0 +1,224 @@
+<%- include("partials/header.ejs") %>
+
+<style>
+    .checks {
+      width: 100%;
+      display: none;
+      border: 1px solid #999999;
+      padding: 5px;
+      margin-top: 5px;
+      background: #f9f9f9;
+      border-radius: 5px;
+    }
+    .checks ul {
+      list-style: none;
+      padding: 0;
+    }
+    .checks li {
+      width: fit-content;
+      word-wrap: normal;
+      white-space: none;
+      margin-bottom: 5px;
+      font-size: 14px;
+    }
+    .checks li i {
+      font-size: 16px;
+    }
+    .valid {
+      color: rgb(37, 184, 37);
+    }
+    .invalid {
+      color: rgb(219, 9, 9);
+    }
+  </style>
+<main class="main signup-main">
+  <% if (locals.message) { %>
+    <p class="signup-error-message">
+      <%= message %>
+      <i class="bi bi-x-lg signup-error-message-cancel"></i>
+    </p>
+    <% } %>
+  <div class="signup-container">
+    <p class="heading">Sign Up</p>
+  <form id="signupForm" action="/signup" method="POST">
+    <div class="container">
+      <p id="user-exists-error" class="user-exists-error" style="display: none;">User already exists</p>
+    <label id="email-label" for="email">Email</label>
+    <input type="email" id="email" name="email" autocomplete="off" required>
+    </div>
+    <div class="container">
+    <label id="password-label" for="password">Password</label>
+    <input type="password" id="password" name="password" autocomplete="off" required>
+    </div>
+    <div class="checks" id="checksBox">
+      <ul>
+        <li id="length" class="invalid">
+          <i class="bi bi-x-lg"></i>
+          Minimum 8 characters
+        </li>
+        <li id="lower" class="invalid">
+          <i class="bi bi-x-lg"></i>
+          At least 1 lowercase letter
+
+        </li>
+        <li id="upper" class="invalid">
+          <i class="bi bi-x-lg"></i>
+          At least 1 uppercase letter
+        </li>
+        <li id="digit" class="invalid">
+          <i class="bi bi-x-lg"></i>
+          At least 1 number
+        </li>
+        <li id="special" class="invalid">
+          <i class="bi bi-x-lg"></i>
+          At least 1 special character (@$!%*?&_)
+        </li>
+      </ul>
+    </div>
+
+    <div class="container">
+    <label id="confirm-password-label" for="confirmPassword">Confirm Password</label>
+    <input type="password" name="confirmPassword" id="confirmPassword" autocomplete="off" required disabled>
+    </div>
+    <button type="submit" id="submitBtn" disabled>Sign Up</button>
+  </form>
+  <div class="or-container">
+    <div class="line"></div>
+    <p class="line-text">OR</p>
+    <div class="line"></div>
+  </div>
+  <a class="google-signup" href="/auth/google"><img src="../assets/google-removebg-preview.png" alt="Google">Sign Up with Google</a>
+  <p class="login-banner">Already have an account? <a href="/login">Login</a></p>
+  </div>
+  <div id="emails-data" style="display: none;"><%= JSON.stringify(emails) %></div>
+</main>
+<!-- This must be above the script -->
+<div id="emails-data" style="display:none;"><%= JSON.stringify(emails) %></div>
+
+<script>
+  const emailsEl = document.querySelector('#emails-data');
+  const emails = JSON.parse(emailsEl.textContent);
+  const emailInput = document.querySelector("#email");
+  const userExistsMessage = document.querySelector("#user-exists-error");
+  
+  emailInput.addEventListener("input", () => {
+    const typed = emailInput.value.trim().toLowerCase();
+    const exists = emails.some(email => email === typed);
+    if (exists) {
+      userExistsMessage.style.display = "block";
+      document.querySelector('#email').style.borderColor = 'red';
+      document.querySelector("#password").disabled = true;
+      document.querySelector("#password").value = null;
+    } else {
+      userExistsMessage.style.display = "none";
+      document.querySelector("#password").disabled = false;
+    }
+  });
+</script>
+
+<script>
+    const passwordInput = document.getElementById('password');
+    const confirmPasswordInput = document.getElementById('confirmPassword');
+    const checksBox = document.getElementById('checksBox');
+    const submitBtn = document.querySelector('#submitBtn');
+    const confirmError = document.getElementById('confirmError');
+
+    const checks = {
+      length: document.getElementById('length'),
+      lower: document.getElementById('lower'),
+      upper: document.getElementById('upper'),
+      digit: document.getElementById('digit'),
+      special: document.getElementById('special'),
+    };
+
+    passwordInput.addEventListener('input', () => {
+      const pwd = passwordInput.value;
+      checksBox.style.display = pwd ? 'block' : 'none';
+
+      const lengthCheck = pwd.length >= 8;
+      const lowerCheck = /[a-z]/.test(pwd);
+      const upperCheck = /[A-Z]/.test(pwd);
+      const digitCheck = /\d/.test(pwd);
+      const specialCheck = /[@$!%*?&_]/.test(pwd);
+
+      updateCheck('length', lengthCheck);
+      updateCheck('lower', lowerCheck);
+      updateCheck('upper', upperCheck);
+      updateCheck('digit', digitCheck);
+      updateCheck('special', specialCheck);
+
+      const allPassed = lengthCheck && lowerCheck && upperCheck && digitCheck && specialCheck;
+
+      if (allPassed) {
+        checksBox.style.display = 'none';
+        document.querySelector("#password").style.borderColor = 'darkgreen';
+        confirmPasswordInput.disabled = false;
+      } else {
+        document.querySelector("#password").style.borderColor = 'red';
+        confirmPasswordInput.disabled = true;
+        confirmPasswordInput.value = '';
+        submitBtn.disabled = true;
+      }
+    });
+
+    confirmPasswordInput.addEventListener('input', () => {
+      if (confirmPasswordInput.value === passwordInput.value) {
+        document.getElementById("confirmPassword").style.borderColor = 'green';
+        submitBtn.disabled = false;
+      } else {
+        document.getElementById("confirmPassword").style.borderColor = 'red';
+        submitBtn.disabled = true;
+      }
+    });
+
+    function updateCheck(id, isValid) {
+      checks[id].className = isValid ? 'valid' : 'invalid';
+      checks[id].innerHTML = (isValid ? '<i <i class="bi bi-check-lg"></i>' : '<i class="bi bi-x-lg"></i>') + ' ' + checks[id].textContent.slice(1);
+    }
+
+    document.getElementById('signupForm').addEventListener('submit', (e) => {
+      if (submitBtn.disabled) {
+        e.preventDefault();
+      } else {
+        document.getElementById('signupForm').submit();
+      }
+    });
+    const inputs = document.querySelectorAll("input");
+
+  inputs.forEach(input => {
+    input.addEventListener("focusin", () => {
+    input.style.border = '1px solid #2563EB';
+
+    const label = document.querySelector(`label[for="${input.id}"]`);
+    if (label) {
+      label.style.transform = 'translate(7px, -10px)';
+      label.style.display = 'block';
+      label.style.color = '#1E3A8A';
+      label.style.fontSize = '13px';
+      label.style.backgroundColor = 'whitesmoke';
+    }
+  });
+
+  input.addEventListener("focusout", () => {
+    input.style.border = '1px solid rgb(58, 58, 58)';
+
+    const label = document.querySelector(`label[for="${input.id}"]`);
+    if (label) {
+      label.style.transform = 'translate(7px, 3px)';
+      label.style.color = 'rgb(124, 124, 124)';
+      if (input.value) {
+        label.style.display = 'none';
+      } else {
+        label.style.display = 'block';
+      }
+      label.style.fontSize = '15px';
+      label.style.backgroundColor = 'whitesmoke';
+    }
+  });
+});
+  document.querySelector(".signup-error-message-cancel").addEventListener("click", () => {
+    document.querySelector(".signup-error-message").style.display = 'none';
+  });
+  </script>
+
+<%- include("partials/footer.ejs") %>

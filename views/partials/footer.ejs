@@ -1,0 +1,82 @@
+<footer>
+  <div class="footer">
+    <p class="footer-text">@Copyright 2025</p>
+  </div>
+</footer>
+<script>
+  const toggleDarkMode = () => {
+    const html = document.documentElement;
+    const icon = document.getElementById('themeIcon');
+
+    if (html.classList.contains('dark')) {
+      html.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+      icon.classList.remove('bi-sun');
+      icon.classList.add('bi-moon-stars');
+    } else {
+      html.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+      icon.classList.remove('bi-moon-stars');
+      icon.classList.add('bi-sun');
+    }
+  };
+  document.getElementById('themeToggle')?.addEventListener('click', toggleDarkMode);
+
+  if (localStorage.getItem('theme') === 'dark') {
+    document.documentElement.classList.add('dark');
+    document.getElementById('themeIcon')?.classList.remove('bi-moon-stars');
+    document.getElementById('themeIcon')?.classList.add('bi-sun');
+  } else {
+    document.getElementById('themeIcon')?.classList.remove('bi-sun');
+    document.getElementById('themeIcon')?.classList.add('bi-moon-stars');
+  }
+  const profile = document.querySelector(".header-profile-container");
+const dropdown = document.querySelector(".dropdown");
+let hoverTimeout;
+function showDropdown() {
+  clearTimeout(hoverTimeout);
+  dropdown.classList.remove("display");
+}
+function hideDropdown() {
+  hoverTimeout = setTimeout(() => {
+    dropdown.classList.add("display");
+  }, 150);
+}
+profile.addEventListener("mouseenter", showDropdown);
+dropdown.addEventListener("mouseenter", showDropdown);
+profile.addEventListener("mouseleave", hideDropdown);
+dropdown.addEventListener("mouseleave", hideDropdown);
+</script>
+<script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
+  
+  <!-- Initialize Quill editor -->
+  <script>
+    var toolbarOptions = [
+        [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+        [{ 'size': ['small', false, 'large', 'huge'] }],
+        [{ 'font': [] }],
+        ['bold', 'italic', 'underline', 'strike'],
+        [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+        [{ 'align': [] }],
+        [{ 'color': [] }, { 'background': [] }],
+        [{ 'script': 'sub' }, { 'script': 'super' }],
+        [{ 'indent': '-1' }, { 'indent': '+1' }],
+
+        ['image'],
+        ['clean']
+    ];
+    var quill = new Quill('#editor', {
+        modules: {
+            toolbar: toolbarOptions
+        },
+        theme: 'snow'
+    });
+    document.querySelector(".ql-editor-form").addEventListener("submit", ()=> {
+      const content = quill.root.innerHTML;
+      document.getElementById("info").value = content;
+      const info = document.getElementById("info").value.toString();
+    });
+  </script>
+
+</body>
+</html>

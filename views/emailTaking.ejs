@@ -1,0 +1,46 @@
+<%- include("partials/header.ejs") %>
+
+<main class="main email-main">
+  <form class="email-taking-form" action="/email" method="POST">
+    <p class="heading">Enter Email</p>
+    <div class="container">
+    <label id="email-label" for="email">Email</label>
+    <input type="email" id="email" name="email" autocomplete="off" required>
+    </div>
+    <button class="email-taking-submit-btn" type="submit">Get Code</button>
+  </form>
+</main>
+<script>
+  const input = document.getElementById("email");
+  input.addEventListener("focusin", () => {
+    input.style.border = '1px solid #2563EB';
+
+    const label = document.querySelector(`label[for="${input.id}"]`);
+    if (label) {
+      label.style.transform = 'translate(7px, -10px)';
+      label.style.display = 'block';
+      label.style.color = '#1E3A8A';
+      label.style.fontSize = '13px';
+      label.style.backgroundColor = 'whitesmoke';
+    }
+  });
+
+  input.addEventListener("focusout", () => {
+    input.style.border = '1px solid rgb(58, 58, 58)';
+
+    const label = document.querySelector(`label[for="${input.id}"]`);
+    if (label) {
+      label.style.transform = 'translate(7px, 3px)';
+      label.style.color = 'rgb(124, 124, 124)';
+      if (input.value) {
+        label.style.display = 'none';
+      } else {
+        label.style.display = 'block';
+      }
+      label.style.fontSize = '15px';
+      label.style.backgroundColor = 'white';
+    }
+    });
+</script>
+
+<%- include("partials/footer.ejs") %>

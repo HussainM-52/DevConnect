@@ -1,0 +1,132 @@
+<%- include("partials/header.ejs") %>
+
+<main class="main create-post-main">
+  <div class="container">
+      <h1 class="heading">Create Post</h1>
+    <form class="ql-editor-form" action="
+    <% if (locals.post) { %>
+      /home/edit-post
+    <% } else { %>
+      /home/create-post
+    <% } %>
+    " method="post">
+    <div class="detail-cont">
+      <p class="heading">Title</p>
+      <input type="text" name="title" id="title" autofocus autocomplete="off" required value="<%= locals.post ? post.title : null %>">
+    </div>
+    <div class="detail-cont">
+      <p class="heading">Description</p>
+      <textarea name="description" id="description" autocomplete="off" required><%= locals.post ? post.description : null %></textarea>
+      <p class="use">* Used for Blog previews</p>
+    </div>
+    <div class="detail-cont">
+      <p class="heading">Content</p>
+      <div class="editor" id="editor"><%- locals.post ? post.only_content : null %></div>
+      <input type="hidden" name="content" id="info">
+    </div>
+    <div class="detail-cont">
+      <p class="heading">Tags</p>
+      <input type="text" name="tagInput" id="tagInput" autocomplete="off">
+      <p class="use">* Required for searches | 5 allowed</p>
+      <input type="hidden" name="tags" id="tags" value="<%= locals.post && post.tags.join(',') %>" required>
+      <% if (locals.post) { %>
+        <input type="hidden" name="post_id" value="<%= post.id %>">
+      <% } %>
+      <p class="tagMsg display">Atleast one tag is required</p>
+      <p class="tagList">
+        <p class="tagList"></p>
+      </p>
+    </div>
+    <input type="hidden" name="user_id" value="<%= profile.id %>">
+    <div class="submit-btn-cont">
+      <a href="/home/cancel-post" class="create-post-cancel-btn">Cancel</a>
+    <button class="create-post-submit-draft-btn" type="submit" name="action" value="draft"><%= locals.post ? 'Save Draft' : 'Save as Draft' %></button>
+    <% if (locals.post && !post.published) { %>
+        <button class="create-post-submit-publish-btn" type="submit" name="action" value="publish">Publish</button>
+    <% } %>
+    <% if (locals.isNew === true) { %>
+    <button class="create-post-submit-publish-btn" type="submit" name="action" value="publish">Publish</button>
+    <% } %>
+    </div>
+    </form>
+  </div>
+</main>
+<script>
+const description = document.getElementById("description");
+description.addEventListener("input", () => {
+  description.style.height = "auto";
+  description.style.height = description.scrollHeight + "px"; 
+});
+
+const tagInput = document.getElementById("tagInput");
+const tagsPara = document.querySelector(".tagList");
+const hiddenInput = document.getElementById("tags");
+const tagMsg = document.querySelector(".tagMsg");
+
+let tags = [];
+window.addEventListener("DOMContentLoaded", () => {
+  const existingValue = hiddenInput.value.trim();
+  if (existingValue) {
+    const existingTags = existingValue.split(",").map(t => t.trim()).filter(t => t);
+    existingTags.forEach(tag => {
+      if (!tags.includes(tag)) {
+        tags.push(tag);
+        addTagToDOM(tag);
+      }
+    });
+    updateHiddenInput();
+  }
+});
+
+tagInput.addEventListener("keydown", function (e) {
+  if (e.key === "Enter" || e.key === ",") {
+    e.preventDefault();
+    const value = tagInput.value.trim();
+    if (value && !tags.includes(value)) {
+      tags.push(value);
+      addTagToDOM(value);
+      updateHiddenInput(); 
+      tagInput.value = "";
+    }
+    tagMsg.classList.add("display");
+  }
+});
+
+function addTagToDOM(tag) {
+  const tagSpan = document.createElement("span");
+  tagSpan.textContent = tag;
+
+  const closeBtn = document.createElement("span");
+  closeBtn.textContent = "×";
+  closeBtn.addEventListener("click", function () {
+    tags = tags.filter(t => t !== tag);
+    tagSpan.remove();
+    updateHiddenInput();
+  });
+
+  tagSpan.appendChild(closeBtn);
+  tagsPara.appendChild(tagSpan);
+}
+
+function updateHiddenInput() {
+  hiddenInput.value = tags.join(",");
+  tagInput.disabled = tags.length >= 5;
+}
+
+document.querySelector(".ql-editor-form").addEventListener("submit", (e) => {
+  const editor = document.querySelector(".editor");
+  if (!editor.textContent.trim()) {
+    e.preventDefault();
+    alert("Add some content!");
+    return;
+  }
+  if (tags.length === 0) {
+    e.preventDefault();
+    tagMsg.classList.remove("display");
+    return;
+  }
+  tagMsg.classList.add("display");
+});
+</script>
+
+<%- include("partials/footer.ejs") %>
