@@ -1,29 +1,82 @@
 <%- include("partials/header.ejs") %>
 
 <main class="main index-main">
-  <div class="header-link-container">
-        <div class="links">
-          <a href="#about" class="header-link">About</a>
-          <a href="#features" class="header-link">Features</a>
-          <a href="#contact" class="header-link">Contact</a>
+  <div class="container">
+
+    <!-- Hero Section -->
+    <section class="hero-section" id="hero">
+      <div class="hero-content">
+        <h1 class="headline">Build. Write. Connect with Developers Worldwide.</h1>
+        <p class="hero-subtext">
+          Share your knowledge, showcase your work, and inspire others in a growing global community of developers.
+        </p>
+        <a href="/login" class="cta-btn">Start Writing</a>
+      </div>
+      <div class="hero-image">
+        <img src="/img/hero-img.jpg" alt="Developer Blogging">
+        <div class="social-icons">
+          <a href="https://instagram.com" target="_blank"><i class="bi bi-instagram"></i></a>
+          <a href="https://twitter.com" target="_blank"><i class="bi bi-twitter-x"></i></a>
+          <a href="https://googleplus.com" target="_blank"><i class="bi bi-google"></i></a>
+          <a href="https://facebook.com" target="_blank"><i class="bi bi-facebook"></i></a>
         </div>
       </div>
-      <div class="main-index-container">
-  <div class="index-main-hero-cont">
-    <div class="hero-first-cont">
-      <h1>DevConnect – Where Developers Share What Matters</h1>
-      <h3>Write technical blogs, discover insights, and connect with a thriving dev community.</h3>
-      <a href="/signup">
-        <button class="header-btn header-btn-signup">
-          Sign Up
-        </button>
-      </a>
-    </div>
-    <div class="hero-second-cont"></div>
-  </div>
-  <div class="index-main-second-cont">
-    <div class="wrapper-cont"></div>
-  </div>
+    </section>
+
+    <!-- About Section -->
+    <section class="about-section alt-bg" id="about">
+      <div class="section-text">
+        <h2 class="section-heading">About Us</h2>
+        <p class="section-subheading">
+          We’re building more than just a blogging platform — we’re building a developer network.
+        </p>
+        <p class="content">
+          DevConnect is designed for developers who want to share, grow, and connect. Whether you're a beginner or a pro, your voice adds value.
+        </p>
+        <a href="/login" class="secondary-btn">Join DevConnect</a>
+      </div>
+      <div class="section-image">
+        <img src="/img/about-img.jpg" alt="About DevConnect">
+      </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features-section" id="features">
+      <h2 class="section-heading">Tools That Power Your Developer Voice</h2>
+      <div class="features-grid">
+        <div class="feature-card">
+          <img src="/img/img-1.jpg" alt="Profile Management">
+          <h3 class="card-title">Public Developer Profiles</h3>
+          <p>Showcase your skills and experience through your blog, and let others discover your work.</p>
+        </div>
+        <div class="feature-card">
+          <img src="/img/img-1.jpg" alt="Post Drafting">
+          <h3 class="card-title">Flexible Publishing Workflow</h3>
+          <p>Draft now, publish later. Manage your writing flow easily with DevConnect.</p>
+        </div>
+        <div class="feature-card">
+          <img src="/img/img-1.jpg" alt="Engagement Features">
+          <h3 class="card-title">Community Engagement</h3>
+          <p>Get real feedback from readers through likes and comments, and grow your reach.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section class="contact-section alt-bg" id="contact">
+      <div class="section-text">
+        <h2 class="section-heading">Contact Us</h2>
+        <p class="content">We’d love to hear your feedback or ideas for the platform.</p>
+        <div class="input-container">
+          <input type="text" placeholder="Share your thoughts..." class="subscribe">
+          <button class="subscribe-btn">Send</button>
+        </div>
+      </div>
+      <div class="section-image">
+        <img src="/img/contact-profile.jpg" alt="Developer Contact">
+      </div>
+    </section>
+
   </div>
 </main>
 

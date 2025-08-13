@@ -30,7 +30,7 @@ method="POST">
   <label for="bio" style="display: <%= locals.profile && 'none' %>;">About you</label>
   <textarea class="auto-resize" name="bio" id="bio" autocomplete="off"><%= locals.profile && profile.bio %></textarea>
   </div>
-  <input type="hidden" name="imagePath" id="imagePathInput" value="<%= locals.profile ? profile.pfp : '../assets/default.png' %>" autocomplete="off" />
+  <input type="hidden" name="imagePath" id="imagePathInput" value="<%= locals.profile ? profile.pfp : '/assets/default.png' %>" autocomplete="off" />
   <% if (locals.profile) { %>
     <input style="display: none;" type="text" name="id" value="<%= profile.id %>">
   <% } %>

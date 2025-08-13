@@ -5,34 +5,36 @@
     <div class="info-container">
       <div class="image-container">
         <div class="img-cont">
-        <img src="<%= profile.pfp %>" alt="profile picture">
+        <img src="<%= locals.isDiffUser ? visitingUserProfile.pfp : profile.pfp %>" alt="profile picture">
         </div>
+        <% if (!locals.isDiffUser) { %>
         <div class="btn-cont">
           <a class="edit-profile-a" href="/create-profile?edit=true">Edit</a>
           <a class="logout-a" href="/logout">Logout</a>
         </div>
+      <% } %>
       </div>
       <div class="details-container">
         <div class="username-cont">
           <p class="heading">Username</p>
-          <p class="answer"><%= profile.username %></p>
+          <p class="answer"><%= locals.isDiffUser ? visitingUserProfile.username : profile.username %></p>
         </div>
         <div class="detail-cont-line"></div>
         <div class="full-name-cont">
           <p class="heading">Full name</p>
-          <p class="answer"><%= profile.name %></p>
+          <p class="answer"><%= locals.isDiffUser ? visitingUserProfile.name : profile.name %></p>
         </div>
         <div class="detail-cont-line"></div>
         <div class="email-cont">
           <p class="heading">Email</p>
-          <p class="answer"><%= profile.email %></p>
+          <p class="answer"><%= locals.isDiffUser ? visitingUserProfile.email : profile.email %></p>
         </div>
       </div>
     </div>
     <div class="bio-container">
       <p class="heading">Bio</p>
       <div class="bio-cont">
-        <p class="bio"><%= profile.bio %></p>
+        <p class="bio"><%= locals.isDiffUser ? visitingUserProfile.bio : profile.bio %></p>
       </div>
     </div>
     <div class="profile-container-line"></div>
@@ -40,16 +42,20 @@
       <div class="btn-cont">
         <div class="heading-select-container">
           <span class="heading">Posts</span>
-          <select name="status" id="status">
-            <option value="all">All</option>
+          <% if (!locals.isDiffUser) { %>
+            <select name="status" id="status">
+              <option value="all">All</option>
             <option value="draft">Drafts</option>
             <option value="published">Published</option>
           </select>
-      </div>
-      <a href="/home/create-post" class="create-post">
-        <i class="bi bi-plus"></i>
-        Create Post
-      </a>
+          <% } %>
+        </div>
+      <% if (!locals.isDiffUser) { %>
+        <a href="/home/create-post" class="create-post">
+          <i class="bi bi-plus"></i>
+          Create Post
+        </a>
+        <% } %>
       </div>
       <div class="post-cont">
         <% if (locals.posts) { %>
@@ -63,8 +69,8 @@
                     <p class="published-by">
                       Published by: <%= post.user_id === profile.id ? 'You' : post.username %>
                     </p>
-                    <p class="published-on" data-createdat="<%= post.createdat %>">
-                      Published on: <span class="formatted-date">Loading...</span>
+                    <p class="published-on" data-createdat="<%= post.updatedat === null ? post.createdat : post.updatedat %>">
+                      <%= post.updatedat === null ? 'Published on' : 'Updated at' %>: <span class="formatted-date">Loading...</span>
                     </p>
                     <% } else { %>
                       <p class="published-by">Draft created by: <%= post.user_id === profile.id ? 'You' : post.username %></p>
@@ -78,20 +84,24 @@
                   <% post.tags.forEach(tag => { %>
                   <span class="tag"><%= tag %></span>
                 <% }) %></div>
-                <div class="dropdown-cont display">
-                  <a class="delete-btn" href="/home/post-delete/<%= post.id %>">Delete Post</a>
-                </div>
-                <i class="bi bi-three-dots-vertical"></i>
+                <% if (!locals.isDiffUser) { %>
+                  <div class="dropdown-cont display">
+                    <a class="delete-btn" href="/home/post-delete/<%= post.id %>">Delete Post</a>
+                  </div>
+                  <i class="bi bi-three-dots-vertical"></i>
+                  <% } %>
                 <div class="view-edit-cont">
                 <a href="/home/post/<%= post.id %>">
                   View post
                 </a>
-                <a href="/home/create-post?edit=true&id=<%= post.id %>">
-                  Edit post
-                </a>
-                <% if (post.published === false) { %>
-                  <a href="/home/publish-post/<%= post.id %>">Publish</a>
-                <% } %>
+                <% if (!locals.isDiffUser) { %>
+                  <a href="/home/create-post?edit=true&id=<%= post.id %>">
+                    Edit post
+                  </a>
+                  <% if (post.published === false) { %>
+                    <a href="/home/publish-post/<%= post.id %>">Publish</a>
+                    <% } %>
+                    <% } %>
                 </div>
                 </div>
                 <% if (post.published) { %>
@@ -113,13 +123,29 @@
             <% }); %>
           <% } else { %>
             <p class="heading">No Posts Found</p>
-          <% } %>
-        <% } %>
-      </div>
-    </div>
+            <% } %>
+            <% } %>
+          </div>
+        </div>
   </div>
 </main>
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+  document.querySelectorAll(".published-on").forEach(el => {
+    const rawMillis = el.dataset.createdat;
+    const millis = parseInt(rawMillis, 10);
+    const date = new Date(millis);
 
+    const formatted = isNaN(date)
+      ? "Invalid Date"
+      : date.toLocaleString('en-US', {
+          year: 'numeric', month: 'short', day: 'numeric'
+        });
+
+    el.querySelector(".formatted-date").textContent = formatted;
+  });
+});
+</script>
 <script>
   const posts = document.querySelectorAll(".bi-three-dots-vertical");
 
@@ -151,22 +177,6 @@ statusFilter.addEventListener('change', () => {
 });
 window.addEventListener('DOMContentLoaded', () => {
   statusFilter.dispatchEvent(new Event('change'));
-});
-
-document.addEventListener("DOMContentLoaded", () => {
-  document.querySelectorAll(".published-on").forEach(el => {
-    const rawMillis = el.dataset.createdat;
-    const millis = parseInt(rawMillis, 10);
-    const date = new Date(millis);
-
-    const formatted = isNaN(date)
-      ? "Invalid Date"
-      : date.toLocaleString('en-US', {
-          year: 'numeric', month: 'short', day: 'numeric'
-        });
-
-    el.querySelector(".formatted-date").textContent = formatted;
-  });
 });
 </script>
 

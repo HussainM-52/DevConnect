@@ -20,6 +20,7 @@ router.get("/auth/google/home", Controllers.getGoogleAuthHome, Controllers.googl
 router.get("/logout", Controllers.logout);
 router.get("/home", Controllers.getHomePage);
 router.get("/home/profile", Controllers.homeProfile);
+router.get("/home/profile/:id", Controllers.homeProfile);
 router.get("/home/create-post", Controllers.homePostCreate);
 router.get("/edit-profile-cancel", Controllers.getEditProfileCancel);
 router.get("/home/cancel-post", Controllers.cancelPostBtn);
@@ -38,6 +39,9 @@ router.post("/create-profile", Controllers.postCreateProfile);
 router.post("/edit-profile", Controllers.postEditProfile);
 router.post("/home/edit-post", Controllers.postEditPost);
 router.post("/home/create-post", Controllers.postHomePostCreate);
+router.post("/add-like", Controllers.addLike);
+router.post("/remove-like", Controllers.removeLike);
+router.post("/add-comment", Controllers.getAddComment);
 
 //File upload route
 router.post('/upload-image', upload.single('profileImage'), Controllers.handleImageUpload);

@@ -61,6 +61,7 @@ export const downloadBlogAsHTML = async (req, res) => {
       <title>${post.title}</title>
       <style>
       body {
+      font-family: "Poppins";
       padding: 0;
       margin: 0;
       background-color: #d8d8daff;
@@ -149,6 +150,7 @@ export const postEmailCofirmation = async (req, res) => {
   }
   if (userCode !== sessionData.code) {
     req.session.message = "Invalid Code";
+    email = sessionData.email;
     return res.redirect("/email-confirmation");
   }
   const password = sessionData.password;
@@ -421,24 +423,82 @@ export const googleAuthHome = (req, res) => {
 let data;
 
 export const getHomePage = async (req, res) => {
-  if (req.isAuthenticated()) {
-    const user = await db.query("SELECT * FROM users WHERE email = $1", [req.user.email]);
-    data =  user.rows[0];
-    res.render("home.ejs", {
-      title: "DevConnect",
-      profile: data,
-      isAuthenticated: true,
-    });
-    data = null;
-  } else {
-    res.redirect("/login");
+    if (!req.isAuthenticated()) {
+    return res.redirect("/login");
   }
+  const user = await db.query("SELECT * FROM users WHERE email = $1", [req.user.email]);
+  const profile = user.rows[0];
+  const userId = req.user.id;
+  const query = `
+    SELECT 
+  posts.*, 
+  COALESCE(JSON_AGG(DISTINCT tags.tag) FILTER (WHERE tags.id IS NOT NULL), '[]') AS tags,
+  COALESCE(JSON_AGG(DISTINCT likes) FILTER (WHERE likes.id IS NOT NULL), '[]') AS likes,
+  COALESCE(JSON_AGG(DISTINCT comments) FILTER (WHERE comments.id IS NOT NULL), '[]') AS comments,
+  users.id AS user_id,
+  users.username AS username
+  FROM posts
+  LEFT JOIN tags ON posts.id = tags.post_id
+  INNER JOIN users ON users.id = posts.user_id
+  LEFT JOIN likes ON posts.id = likes.post_id
+  LEFT JOIN comments ON posts.id = comments.post_id
+  WHERE posts.published = $1
+  GROUP BY posts.id, users.id
+  ORDER BY posts.id DESC;
+  `;
+  const params = [true];
+  const result = await db.query(query, params);
+  const posts = result.rows;
+  res.render("home.ejs", {
+    title: "DevConnect",
+    profile: profile,
+    isAuthenticated: true,
+    posts: posts,
+  })
 }
 
 export const homeProfile = async (req, res) => {
   if (!req.isAuthenticated()) {
     return res.redirect("/login");
   }
+  if (req.params.id) {
+    const user = await db.query("SELECT * FROM users WHERE email = $1", [req.user.email]);
+  const profile = user.rows[0];
+    const visitngUser = await db.query("SELECT * FROM users WHERE id = $1", [req.params.id]);
+  const visitingUserProfile = visitngUser.rows[0];
+  const query = `
+    SELECT 
+  posts.*, 
+  COALESCE(JSON_AGG(DISTINCT tags.tag) FILTER (WHERE tags.id IS NOT NULL), '[]') AS tags,
+  COALESCE(JSON_AGG(DISTINCT likes) FILTER (WHERE likes.id IS NOT NULL), '[]') AS likes,
+  COALESCE(JSON_AGG(DISTINCT comments) FILTER (WHERE comments.id IS NOT NULL), '[]') AS comments,
+  users.id AS user_id,
+  users.username AS username
+  FROM posts
+  LEFT JOIN tags ON posts.id = tags.post_id
+  INNER JOIN users ON users.id = posts.user_id
+  LEFT JOIN likes ON posts.id = likes.post_id
+  LEFT JOIN comments ON posts.id = comments.post_id
+  WHERE posts.user_id = $1 AND posts.published = $2
+  GROUP BY posts.id, users.id
+  ORDER BY posts.id DESC;
+  `;
+  const params = [req.params.id, true];
+  const result = await db.query(query, params);
+  let isDiffUser = true;
+  if (parseInt(profile.id) === parseInt(visitingUserProfile.id)) {
+    isDiffUser = false;
+  }
+  const posts = result.rows;
+  res.render("profile.ejs", {
+    title: "profile",
+    profile: profile,
+    visitingUserProfile: visitingUserProfile,
+    isAuthenticated: true,
+    posts: posts,
+    isDiffUser: isDiffUser,
+  })
+  } else {
   const user = await db.query("SELECT * FROM users WHERE email = $1", [req.user.email]);
   const profile = user.rows[0];
   const userId = req.user.id;
@@ -469,6 +529,7 @@ export const homeProfile = async (req, res) => {
     posts: posts,
   })
 }
+}
 
 export const homePostCreate = async (req, res) => {
   if (req.isAuthenticated()) {
@@ -487,7 +548,6 @@ export const homePostCreate = async (req, res) => {
         GROUP BY posts.id
         `, [id]);
       posts = postResult.rows[0];
-      await db.query("DELETE FROM tags WHERE post_id = $1", [posts.id]);
       isNew = false;
     }
     res.render("postCreate.ejs", {
@@ -517,7 +577,7 @@ export const postHomePostCreate = async (req, res) => {
     res.redirect("/home/my-posts");
   }
   else if (body.action === 'publish') {
-    const postResult = await db.query("INSERT INTO posts (user_id, content, published, description, createdat, title, only_content) VALUES ($1, $2, $3, $4, $5, $6, &7) RETURNING *", [body.user_id, content, true, body.description, Date.now(), body.title, body.content]);
+    const postResult = await db.query("INSERT INTO posts (user_id, content, published, description, createdat, title, only_content) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *", [body.user_id, content, true, body.description, Date.now(), body.title, body.content]);
     const postId = await postResult.rows[0].id;
     const tags = body.tags;
     const tagArray = tags.split(",");
@@ -544,6 +604,7 @@ export const postEditPost = async (req, res) => {
       `, params);
     const tags = body.tags;
     const tagArray = tags.split(",");
+    const tagDelete = await db.query("DELETE FROM tags WHERE post_id = $1", [postId]);
     const tagResult = tagArray.forEach(async(tag) => {
        await db.query("INSERT INTO tags (post_id, tag) VALUES ($1, $2) RETURNING *", [body.post_id, tag]);
     });
@@ -564,6 +625,7 @@ export const postEditPost = async (req, res) => {
     const postId = await postResult.rows[0].id;
     const tags = body.tags;
     const tagArray = tags.split(",");
+    const tagDelete = await db.query("DELETE FROM tags WHERE post_id = $1", [postId]);
     const tagResult = tagArray.forEach(async(tag) => {
        await db.query("INSERT INTO tags (post_id, tag, createdat) VALUES ($1, $2, $3) RETURNING *", [body.post_id, tag, Date.now()]);
     });
@@ -575,7 +637,6 @@ export const getPostDelete = async (req, res) => {
   if (req.isAuthenticated()) {
     const id = req.params.id;
     const result = await db.query("DELETE FROM posts where id=$1", [id]);
-    console.log(result.rows[0]);
     res.redirect("/home/my-posts");
   } else {
     res.redirect("/login")
@@ -596,33 +657,13 @@ export const publishPost = async (req, res) => {
       WHERE id = $3
       RETURNING *  
     `, [true, Date.now(), post_id]);
-    res.redirect("/home/profile");
+    res.redirect("/home/my-posts");
   }
   else {
     res.redirect("/login");
   }
 }
 
-export const getBlogView = async (req, res) => {
-  if (req.isAuthenticated()) {
-    const id = req.params.id;
-    const user = await db.query("SELECT * FROM users WHERE email = $1", [req.user.email]);
-    const profile = user.rows[0];
-    const result = await db.query(`
-      SELECT * FROM posts WHERE id = $1
-    `, [id]);
-    const post = result.rows[0];
-    res.render("blogView.ejs", {
-      title: post.title,
-      isAuthenticated: true,
-      profile: profile,
-      post: post,
-    });
-  }
-  else {
-    res.redirect("/login");
-  }
-}
 
 export const getMyPosts = async (req, res) => {
   if (!req.isAuthenticated()) {
@@ -659,6 +700,95 @@ export const getMyPosts = async (req, res) => {
   })
 }
 
+export const getBlogView = async (req, res) => {
+  if (req.isAuthenticated()) {
+    const id = req.params.id;
+    const user = await db.query("SELECT * FROM users WHERE email = $1", [req.user.email]);
+    const profile = user.rows[0];
+    const result = await db.query(`
+      SELECT * FROM posts WHERE id = $1
+    `, [id]);
+    const post = result.rows[0];
+    const hasLiked = await db.query(
+      'SELECT * FROM likes WHERE post_id = $1 AND user_id = $2',
+      [post.id, profile.id]
+    );
+    const comments = await db.query(`
+      SELECT
+      comments.content,
+      users.username AS commenter_username,
+      users.pfp AS commenter_pfp
+      FROM comments
+      INNER JOIN users ON users.id = comments.user_id
+      WHERE comments.post_id = $1
+    `, [post.id]);
+    res.render("blogView.ejs", {
+      title: post.title,
+      isAuthenticated: true,
+      profile: profile,
+      post: post,
+      liked: hasLiked.rowCount > 0,
+      comments: comments.rows,
+    });
+  }
+  else {
+    res.redirect("/login");
+  }
+}
+
+export const addLike = async(req, res) => {
+  const { post_id, user_id } = req.body;
+  try {
+    const result = await db.query("INSERT INTO likes (user_id, post_id, createdat) VALUES ($1, $2, $3) RETURNING *", [user_id, post_id, Date.now()]);
+    if (result.rows.length > 0) {
+      res.json({
+        status: 'liked',
+      });
+    }
+  } catch (err) {
+    console.log(err);
+  }
+}
+export const removeLike = async (req, res) => {
+  const { post_id, user_id } = req.body;
+  await db.query(
+    'DELETE FROM likes WHERE post_id = $1 AND user_id = $2',
+    [post_id, user_id]
+  );
+  res.json({ status: 'unliked' });
+};
+export const getAddComment = async (req, res) => {
+  const { comment, post_id, user_id } = req.body;
+  const commentAdded = await db.query("INSERT INTO comments (user_id, post_id, content, createdat) VALUES ($1, $2, $3, $4) RETURNING *", [user_id, post_id, comment, Date.now()]);
+  const comments = await db.query(`
+      SELECT
+      comments.content,
+      users.username AS commenter_username,
+      users.pfp AS commenter_pfp
+      FROM comments
+      INNER JOIN users ON users.id = comments.user_id
+      WHERE comments.post_id = $1
+    `, [post_id]);
+    res.json({
+      comments,
+    });
+}
+
+// error 404 page
+export const error404Page = async (req, res) => {
+  if (req.isAuthenticated()) {
+    const user = await db.query("SELECT * FROM users WHERE email = $1", [req.user.email]);
+    const profile = user.rows[0];
+    return res.render("error404.ejs", {
+    title: "error 404",
+    profile: profile,
+    isAuthenticated: true,
+  });
+  }
+  res.render("error404.ejs", {
+    title: "error 404",
+  });
+}
 
 // Strategies
 passport.use(

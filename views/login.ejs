@@ -18,7 +18,6 @@
     <label id="password-label" for="password">Password</label>
     <input type="password" id="password" name="password" autocomplete="off" required>
     </div>
-    <input type="checkbox" id="checkbox">
     <button type="submit" id="submitBtn">Login</button>
   </form>
   <a href="/email" class="forgot-password">Forgot Password?</a>
@@ -34,18 +33,6 @@
   </div>
 </main>
 <script>
-  // if (document.getElementById(checkbox).checked) {
-  //   document.getElementById("email").value = 'hussainmustansir26@gmail.com';
-  //   document.getElementById("password").value = 'Dmsmmhn_5253'
-  // }
-  // else {
-  //   document.getElementById("email").value = '';
-  //   document.getElementById("password").value = '';
-  // }
-  document.getElementById("checkbox").addEventListener("change", () => {
-    document.getElementById("email").value = 'hussainmustansir26@gmail.com';
-    document.getElementById("password").value = 'Dmsmmhn_5253'
-  })
   const inputs = document.querySelectorAll("input");
 
   inputs.forEach(input => {

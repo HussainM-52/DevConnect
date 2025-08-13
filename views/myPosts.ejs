@@ -29,8 +29,8 @@
                     <p class="published-by">
                       Published by: <%= post.user_id === profile.id ? 'You' : post.username %>
                     </p>
-                    <p class="published-on" data-createdat="<%= post.createdat %>">
-                      Published on: <span class="formatted-date">Loading...</span>
+                    <p class="published-on" data-createdat="<%= post.updatedat === null ? post.createdat : post.updatedat %>">
+                      <%= post.updatedat === null ? 'Published on' : 'Updated at' %>: <span class="formatted-date">Loading...</span>
                     </p>
                     <% } else { %>
                       <p class="published-by">Draft created by: <%= post.user_id === profile.id ? 'You' : post.username %></p>
@@ -151,11 +151,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
     el.querySelector(".formatted-date").textContent = formatted;
-  });
-  const deleteBtn = document.querySelector(".delete-btn");
-  deleteBtn.addEventListener("click", (e) => {
-    e.preventDefault();
-    const id = document.querySelector(".postId").textContent;
   });
 });
 </script>

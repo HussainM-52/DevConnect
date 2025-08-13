@@ -16,7 +16,7 @@
     </div>
     <div class="detail-cont">
       <p class="heading">Description</p>
-      <textarea name="description" id="description" autocomplete="off" required><%= locals.post ? post.description : null %></textarea>
+      <textarea name="description" id="description" maxlength="110" autocomplete="off" required><%= locals.post ? post.description : null %></textarea>
       <p class="use">* Used for Blog previews</p>
     </div>
     <div class="detail-cont">
@@ -40,7 +40,19 @@
     <input type="hidden" name="user_id" value="<%= profile.id %>">
     <div class="submit-btn-cont">
       <a href="/home/cancel-post" class="create-post-cancel-btn">Cancel</a>
-    <button class="create-post-submit-draft-btn" type="submit" name="action" value="draft"><%= locals.post ? 'Save Draft' : 'Save as Draft' %></button>
+    <% if (locals.post && !post.published) { %>
+      <button class="create-post-submit-draft-btn" type="submit" name="action" value="draft">
+        Save Draft
+        </button>
+   <%  } else if (locals.post && post.published === true) { %>
+      <button class="create-post-submit-draft-btn" type="submit" name="action" value="publish">
+        Save Post
+        </button>
+    <% } else { %>
+      <button class="create-post-submit-draft-btn" type="submit" name="action" value="draft">
+        Save as Draft
+        </button>
+    <% } %>
     <% if (locals.post && !post.published) { %>
         <button class="create-post-submit-publish-btn" type="submit" name="action" value="publish">Publish</button>
     <% } %>

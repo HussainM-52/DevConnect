@@ -1,9 +1,174 @@
 <%- include("partials/header.ejs") %>
 
-<main class="main">
-  <h1>
-    home
-  </h1>
+<main class="main home-main">
+  <div class="container">
+    <div class="search-container">
+      <select name="search-select" id="search-select">
+        <option value="title" selected>Title</option>
+        <option value="tag">Tag</option>
+      </select>
+      <input
+        type="text"
+        name="text"
+        id="text"
+        placeholder="Search Blogs..."
+        autocomplete="off"
+      />
+      <i class="bi bi-search search-icon"></i>
+    </div>
+  </div>
+  <div class="container">
+    <div class="post-container">
+      <% if (locals.posts && posts.length> 0) { %> <% posts.forEach(post=> { %>
+      <div
+        class="post"
+        data-title="<%= post.title.toLowerCase() %>"
+        data-tags="<%= post.tags.map(tag => tag.toLowerCase()).join(',') %>"
+      >
+        <div class="post-owner">
+          <p class="published-by">
+            Published by: <%= post.user_id===profile.id ? 'You' : post.username
+            %>
+          </p>
+          <p class="published-on" data-createdat="<%= post.updatedat === null ? post.createdat : post.updatedat %>">
+            <%= post.updatedat === null ? 'Published on' : 'Updated at' %>: <span class="formatted-date">Loading...</span>
+          </p>
+        </div>
+        <div class="post-details">
+          <h3 class="heading" title="<%= post.title %>"><%= post.title %></h3>
+          <p class="description"><%= post.description %></p>
+          <div class="tag-cont">
+            <span class="p">Tags:</span>
+            <div class="main-tag--container">
+              <% post.tags.forEach(tag=> { %>
+              <span class="tag"> <%= tag %> </span>
+              <% }) %>
+            </div>
+          </div>
+          <div class="view-edit-cont">
+            <a style="display: none"></a>
+            <a href="/home/post/<%= post.id %>"> View post </a>
+          </div>
+          <div class="dropdown-cont display">
+            <div class="postId" style="display: none"><%= post.id %></div>
+            <a href="/home/profile/<%= post.user_id %>"> View Profile </a>
+          </div>
+          <i class="bi bi-three-dots-vertical"></i>
+        </div>
+        <div class="like-comment-cont">
+          <div class="like-cont">
+            <i class="bi bi-hand-thumbs-up">
+              <% if (post.likes.length> 0) { %> <%= post.likes.length %> <% } %>
+            </i>
+          </div>
+          <div class="comment-cont">
+            <i class="bi bi-chat-text">
+              <% if (post.comments.length> 0) { %> <%= post.comments.length %>
+              <% } %>
+            </i>
+          </div>
+        </div>
+      </div>
+      <p id="no-posts" class="heading innerHeading" style="display: none">No Posts Found</p>
+      <% }); %> <% } else { %>
+      <p id="no-posts" class="heading">No Posts Found</p>
+      <% } %>
+    </div>
+  </div>
 </main>
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    document.querySelectorAll(".published-on").forEach((el) => {
+      const rawMillis = el.dataset.createdat;
+      const millis = parseInt(rawMillis, 10);
+      const date = new Date(millis);
+
+      const formatted = isNaN(date)
+        ? "Invalid Date"
+        : date.toLocaleString("en-US", {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+          });
+
+      el.querySelector(".formatted-date").textContent = formatted;
+    });
+    const deleteBtn = document.querySelector(".delete-btn");
+    deleteBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      const id = document.querySelector(".postId").textContent;
+    });
+  });
+</script>
+<script>
+  const posts = document.querySelectorAll(".bi-three-dots-vertical");
+
+  posts.forEach((post) => {
+    post.addEventListener("click", () => {
+      const dropdown = post.previousElementSibling;
+      document.querySelectorAll(".dropdown-cont").forEach((d) => {
+        if (d !== dropdown) d.classList.add("display");
+      });
+      dropdown.classList.toggle("display");
+    });
+  });
+
+  const searchInput = document.getElementById("text");
+  const searchSelect = document.getElementById("search-select");
+  const allPosts = document.querySelectorAll(".post");
+  const noPostsMsg = document.getElementById("no-posts");
+
+  function filterPosts() {
+    const searchBy = searchSelect.value;
+    const query = searchInput.value.trim().toLowerCase();
+    let visibleCount = 0;
+
+    allPosts.forEach((post) => {
+      const title = post.dataset.title || "";
+      const tags = post.dataset.tags || "";
+
+      let match = false;
+      if (searchBy === "title") {
+        match = title.includes(query);
+      } else if (searchBy === "tag") {
+        match = tags.includes(query);
+      }
+
+      post.style.display = match ? "block" : "none";
+      if (match) visibleCount++;
+    });
+
+    noPostsMsg.style.display = visibleCount === 0 ? "flex" : "none";
+  }
+
+  searchInput.addEventListener("input", filterPosts);
+  searchSelect.addEventListener("change", filterPosts);
+
+  const statusFilter = document.getElementById("status");
+
+  statusFilter.addEventListener("change", () => {
+    const selected = statusFilter.value;
+    let visibleCount = 0;
+
+    allPosts.forEach((post) => {
+      const status = post.getAttribute("data-status");
+      const shouldShow = selected === "all" || status === selected;
+
+      post.style.display = shouldShow ? "block" : "none";
+      if (shouldShow) visibleCount++;
+    });
+    noPostsMsg.style.display = visibleCount === 0 ? "block" : "none";
+  });
+  window.addEventListener("DOMContentLoaded", () => {
+    statusFilter.dispatchEvent(new Event("change"));
+  });
+  const innerHeading = document.getElementById('no-posts');
+  if (window.getComputedStyle(innerHeading).display === 'block') {
+    const postContainer = document.querySelector(".post-container");
+    innerHeading.style.display = 'flex';
+    innerHeading.style.alignItems = 'center';
+    innerHeading.style.justifyContent = 'center';
+  }
+</script>
 
 <%- include("partials/footer.ejs") %>

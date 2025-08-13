@@ -5,7 +5,7 @@ import passport from 'passport';
 import session from 'express-session';
 import bodyParser from "body-parser";
 import Routes from "./routes/routes.js";
-import {error404Page} from "./controllers/error404.js";
+import {error404Page} from "./controllers/controller.js";
 
 //Setup
 const app = express();
@@ -15,6 +15,7 @@ const port = process.env.SERVER_PORT;
 //Middleware Setup
 app.use(express.static("public"));
 app.use(bodyParser.urlencoded({ extended: true, limit: '100mb' }));
+app.use(express.json());
 app.use(session({
   secret: process.env.SESSION_SECRET,
   resave: false,

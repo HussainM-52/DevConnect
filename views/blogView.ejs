@@ -9,6 +9,158 @@
       <%- post.content %>
     </div>
   </div>
+  <% if (post.published === true) { %>
+    <form class="like-form" action="/">
+      <input type="hidden" id="user-id" name="userId" value="<%= locals.profile && profile.id %>">
+      <input id="post-id" type="hidden" name="postId" value="<%= post.id %>">
+      <button type="submit" class="like">
+  <% if (locals.liked) { %>
+    <i class="bi bi-hand-thumbs-up-fill"></i>
+  <% } else { %>
+    <i class="bi bi-hand-thumbs-up"></i>
+  <% } %>
+</button>
+    </form>
+  <div class="comment-open-btn"><i class="bi bi-chat-text"></i></div>
+  <% } %>
 </main>
+
+<div class="modal" id="comment-modal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Comments</h3>
+        <button class="close-btn"><i class="bi bi-x-lg"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="add-comment">
+          <form class="add-comment-form">
+            <h3 class="title">Add comment</h3>
+            <div class="input-container">
+              <input
+                type="text"
+                name="add-comment"
+                id="add-comment"
+                placeholder="Add your comment here..."
+                required
+                autocomplete="off"
+              />
+              <button type="submit">Comment</button>
+            </div>
+          </form>
+        </div>
+        <h3 class="title">All comments</h3>
+        <div class="view-comment">
+          <% if (locals.comments && comments.length > 0) { %>
+            <% comments.forEach(comment => { %>
+              <div class="comment">
+            <div class="profile-box">
+              <img class="avatar" src="<%= comment.commenter_pfp %>" alt="" />
+              <p class="username"><%= comment.commenter_username %></p>
+            </div>
+            <p class="comment-content"><%= comment.content %></p>
+          </div>
+            <% }); %>
+          <% } else { %>
+            <p class="no-comment-para">No Comments</p>
+          <% } %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const likeForm = document.querySelector(".like-form");
+
+  const postId = document.getElementById("post-id").value;
+  const userId = document.getElementById("user-id").value;
+  likeForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const icon = document.querySelector(".like i");
+    const isLiked = icon.classList.contains("bi-hand-thumbs-up-fill");
+    const url = isLiked ? '/remove-like' : '/add-like';
+    const dataToSend = { post_id: postId, user_id: userId };
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(dataToSend)
+      });
+
+      if (!response.ok) throw new Error(response.status);
+
+      const data = await response.json();
+
+      if (data.status === 'liked') {
+        icon.classList.remove("bi-hand-thumbs-up");
+        icon.classList.add("bi-hand-thumbs-up-fill");
+      } else if (data.status === 'unliked') {
+        icon.classList.remove("bi-hand-thumbs-up-fill");
+        icon.classList.add("bi-hand-thumbs-up");
+      }
+    } catch (err) {
+      console.error("Fetch failed:", err);
+    }
+  });
+  document.querySelector(".add-comment-form").addEventListener("submit", async(e) => {
+    e.preventDefault();
+    const commentInput = document.getElementById("add-comment");
+    const comment = commentInput.value;
+    const url = '/add-comment';
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          comment: comment,
+          post_id: postId,
+          user_id: userId,
+        }),
+      });
+      if (!response.ok) {
+        return console.log(response.status);
+      }
+      const data = await response.json();
+      const comments = data.comments.rows;
+      document.querySelector(".view-comment").innerHTML = null;
+      commentInput.value = '';
+      if (document.querySelector(".no-comment-para")) {
+        document.querySelector(".no-comment-para").style.display = 'none';
+      }
+      comments.forEach(comment => {
+  const div = document.createElement("div");
+  div.classList.add("comment");
+  div.innerHTML = `
+    <div class="profile-box">
+      <img class="avatar" src="${comment.commenter_pfp}" alt="" />
+      <p class="username">${comment.commenter_username}</p>
+    </div>
+    <p class="comment-content">${comment.content}</p>
+  `;
+
+  document.querySelector(".view-comment").appendChild(div);
+      });
+    } catch (err) {
+      console.log("Fetch failed: ", err)
+    }
+  })
+</script>
+
+<script>
+  const modal = document.querySelector("#comment-modal");
+  const modalContent = modal.querySelector(".modal-content");
+  document.querySelector(".comment-open-btn").addEventListener("click", () => {
+    modal.classList.add("fade");
+    modalContent.classList.add("fade");
+  });
+  document.querySelector(".close-btn").addEventListener("click", () => {
+    modalContent.classList.remove("fade");
+    setTimeout(() => {
+      modal.classList.remove("fade");
+      modal.querySelector(".modal-body").scrollTo(0,0);
+    }, 300);
+  });
+</script>
 
 <%- include("partials/footer.ejs") %>
