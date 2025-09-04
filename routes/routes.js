@@ -7,8 +7,6 @@ import { upload } from "../middleware/file-upload.js";
 const router = Router();
 
 // Routes
-router.get("/test", Controllers.testProfile);
-
 router.get("/", Controllers.getIndexPage);
 router.get("/signup", Controllers.getSignupForm);
 router.get("/email-confirmation", Controllers.getEmailConfirmation);
