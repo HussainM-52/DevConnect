@@ -9,31 +9,22 @@
     <input type="file" name="profileImage" id="profileImageInput" autocomplete="off" required />
 </form>
 <div class="img-cont">
-<img id="imagePreview" src=<%= locals.profile ? profile.pfp : '../assets/default.png' %> />
+<img id="imagePreview" src='../assets/default.png' />
 </div>
-<form class="create-profile-form" action=
-"<% if (locals.edit === true) { %>
-  /edit-profile
-<% } else { %>
-  /create-profile
-<% } %>"
-method="POST">
+<form class="create-profile-form" action="/create-profile" method="POST">
   <div class="cont">
-  <label for="name" style="display: <%= locals.profile && 'none' %>;">Full name</label>
-  <input class="formInput" type="text" name="name" id="name" required autocomplete="off" value="<%= locals.profile && profile.name %>"/>
+  <label for="name">Full name</label>
+  <input class="formInput" type="text" name="name" id="name" required autocomplete="off"/>
   </div>
   <div class="cont">
-  <label for="usernameInput" style="display: <%= locals.profile && 'none' %>;">Username</label>
-  <input class="formInput" type="text" id="usernameInput" name="username" autocomplete="off" required value="<%= locals.profile && profile.username %>" />
+  <label for="usernameInput">Username</label>
+  <input class="formInput" type="text" id="usernameInput" name="username" autocomplete="off" required />
   </div>
   <div class="cont">
-  <label for="bio" style="display: <%= locals.profile && 'none' %>;">About you</label>
-  <textarea class="auto-resize" name="bio" id="bio" autocomplete="off"><%= locals.profile && profile.bio %></textarea>
+  <label for="bio">About you</label>
+  <textarea class="auto-resize" name="bio" id="bio" autocomplete="off"></textarea>
 </div>
-<input type="hidden" name="imagePath" id="imagePathInput" value="<%= locals.profile ? profile.pfp : '/assets/default.png' %>" autocomplete="off" />
-  <% if (locals.profile) { %>
-    <input style="display: none;" type="text" name="id" value="<%= profile.id %>">
-  <% } %>
+<input type="hidden" name="imagePath" id="imagePathInput" value="/assets/default.png" autocomplete="off" />
   <!-- <div class="links-cont">
     <div class="link">
       <div class="insta active"><i class="bi bi-instagram"></i></div>
@@ -53,11 +44,8 @@ method="POST">
     </div>
   </div> -->
   <div class="btn-cont">
-  <% if (locals.profile) { %>
-    <a href="/edit-profile-cancel" class="edit-profile-cancel">Cancel</a>
-  <% } %>
   <button type="submit">
-    <%= locals.profile ? 'Update Profile' : 'Create Profile' %>
+    Create Profile
   </button>
   </div>
 </form>

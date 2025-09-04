@@ -13,6 +13,15 @@ db.connect();
 const saltRounds = 10;
 let email;
 
+//test
+export const testProfile = (req, res) => {
+  res.render("testCreateProfile.ejs", {
+    title: 'test',
+    profile: null,
+    edit: false,
+  })
+}
+
 // Landing Page and Auth Routes
 export const getIndexPage = async (req, res) => {
   if (req.isAuthenticated()) {
@@ -773,6 +782,7 @@ export const getAddComment = async (req, res) => {
       comments,
     });
 }
+
 
 // error 404 page
 export const error404Page = async (req, res) => {

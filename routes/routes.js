@@ -7,6 +7,8 @@ import { upload } from "../middleware/file-upload.js";
 const router = Router();
 
 // Routes
+router.get("/test", Controllers.testProfile);
+
 router.get("/", Controllers.getIndexPage);
 router.get("/signup", Controllers.getSignupForm);
 router.get("/email-confirmation", Controllers.getEmailConfirmation);
@@ -45,5 +47,8 @@ router.post("/add-comment", Controllers.getAddComment);
 
 //File upload route
 router.post('/upload-image', upload.single('profileImage'), Controllers.handleImageUpload);
+
+// error page
+router.use("/", Controllers.error404Page);
 
 export default router;

@@ -525,7 +525,25 @@ body {
 }
 .create-profile-main .container {
   height: 70vh;
+  padding: 0;
+  overflow-y: auto;
 }
+.create-profile-main .container::-webkit-scrollbar {
+  width: 10px;
+  border-radius: 10px;
+}
+.create-profile-main .container::-webkit-scrollbar-track {
+  background: #c7c7c7;
+  border-radius: 10px;
+}
+.create-profile-main .container::-webkit-scrollbar-thumb {
+  background: #9e9d9d;
+  border-radius: 10px;
+}
+.create-profile-main .container::-webkit-scrollbar-thumb:hover {
+  background: #7c7c7c;
+}
+
 .profileImageInputLabel {
   width: 30px;
   height: 30px;
@@ -550,6 +568,9 @@ body {
 #profileImageInput {
   display: none;
 }
+.create-profile-main .img-cont {
+  margin-top: -10px;
+}
 .create-profile-main .img-cont img {
   width: 125px;
   height: 125px;
@@ -560,8 +581,9 @@ body {
   margin-top: 10px;
   display: flex;
   align-items: center;
-  gap: 20px;
+  row-gap: 15px;
   flex-direction: column;
+  height: fit-content;
 }
 .create-profile-form textarea {
   min-height: 60px;
@@ -607,6 +629,50 @@ body {
   color: whitesmoke;
   border: 2px solid #2563EB;
 }
+.create-profile-form .links-cont {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  width: 85%;
+  position: relative;
+  height: fit-content;
+  padding-bottom: 60px;
+}
+/* .create-profile-form .links-cont .link {
+} */
+.create-profile-form .links-cont .link div {
+  border-radius: 50%;
+  width: 35px;
+  height: 35px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #c5c5c5;
+  transition: all 0.1s ease-in-out;
+  cursor: pointer;
+}
+.create-profile-form .links-cont .link div.active {
+  background-color: #3e74e7;
+}
+.create-profile-form .links-cont .link div.active i {
+  color: whitesmoke;
+}
+.create-profile-form .links-cont .link div i {
+  font-size: 20px;
+  color: #6e6e6e;
+}
+.create-profile-form .links-cont .link input {
+  position: absolute;
+  right: 0;
+  bottom: 10px;
+  border: none;
+  border-bottom: 2px solid #2563EB;
+  border-radius: 0;
+  box-shadow: none;
+  outline: none;
+  color: #212529;
+}
+
 .profile-main {
   display: flex;
   align-items: start;
@@ -628,7 +694,7 @@ body {
   margin: 30px 0;
 }
 .profile-container .info-container {
-  height: 250px;
+  height: 270px;
   width: 100%;
   margin-bottom: 20px;
   display: flex;
@@ -670,12 +736,12 @@ body {
 }
 .profile-container .info-container .image-container .btn-cont a {
   text-decoration: none;
-  font-size: 15px;
+  font-size: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 5px 10px;
-  border-radius: 5px;
+  padding: 6px 12px;
+  border-radius: 6px;
   transform: scale(1);
   box-shadow: 3px 3px 10px rgba(114, 167, 192, 0.5);
   color: rgb(230, 230, 230);
@@ -714,7 +780,7 @@ body {
   padding: 0 15px;
   justify-content: start;
 }
-.profile-container .info-container .details-container .username-cont .heading, .profile-container .info-container .details-container .full-name-cont .heading, .profile-container .info-container .details-container .email-cont .heading {
+.profile-container .info-container .details-container .username-cont .heading, .profile-container .info-container .details-container .full-name-cont .heading, .profile-container .info-container .details-container .email-cont .heading, .profile-container .info-container .details-container .links-cont .heading {
   font-size: 18px;
   font-weight: 550;
 }
@@ -727,7 +793,10 @@ body {
 .profile-container .info-container .details-container .email-cont .heading {
   margin-right: 100px;
 }
-.profile-container .info-container .details-container .username-cont .answer, .profile-container .info-container .details-container .full-name-cont .answer, .profile-container .info-container .details-container .email-cont .answer {
+.profile-container .info-container .details-container .links-cont .heading {
+  margin-right: 105px;
+}
+.profile-container .info-container .details-container .username-cont .answer, .profile-container .info-container .details-container .full-name-cont .answer, .profile-container .info-container .details-container .email-cont .answer, .profile-container .info-container .details-container .links-cont .answer {
   font-size: 16px;
   background-color: #c7c9ca;
   font-weight: 450;

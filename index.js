@@ -5,7 +5,6 @@ import passport from 'passport';
 import session from 'express-session';
 import bodyParser from "body-parser";
 import Routes from "./routes/routes.js";
-import {error404Page} from "./controllers/controller.js";
 
 //Setup
 const app = express();
@@ -26,7 +25,6 @@ app.use(passport.session());
 
 // All Routes
 app.use(Routes);
-app.use("/", error404Page);
 
 // Server Listening
 app.listen(port, () => {
